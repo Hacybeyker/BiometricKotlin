@@ -1,32 +1,56 @@
 package com.hacybeyker.biometrickotlin
 
-
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import com.hacybeyker.biometrickotlin.databinding.ActivityMainBinding
+
+//Documentation https://android-developers.googleblog.com/2019/10/one-biometric-api-over-all-android.html
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        //Documentation https://android-developers.googleblog.com/2019/10/one-biometric-api-over-all-android.html
-        verifySupportsBiometric()
-    }
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-    private fun verifySupportsBiometric() {
-        val biometricManager = BiometricManager.from(applicationContext)
-        if (biometricManager.canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS) {
+        verifySupportsBiometric()
+        binding.fingerButtonLogin.setOnClickListener {
             val instanceOfBiometricPrompt = instanceOfBiometricPrompt()
             instanceOfBiometricPrompt.authenticate(getPromptInfo())
         }
     }
 
+    private fun verifySupportsBiometric() {
+        val biometricManager = BiometricManager.from(this)
+        when (biometricManager.canAuthenticate()) {
+            BiometricManager.BIOMETRIC_SUCCESS -> {
+                binding.fingerTextMessage.text = getString(R.string.biometric_success)
+                //binding.fingerTextMessage.setTextColor(Color.parseColor("#Fafafa"))
+            }
+            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
+                binding.fingerTextMessage.text = getString(R.string.biometric_no_hardware)
+                binding.fingerButtonLogin.visibility = View.GONE
+            }
+            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
+                binding.fingerTextMessage.text = getString(R.string.biometric_hw_unavailable)
+                binding.fingerButtonLogin.visibility = View.GONE
+            }
+            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                binding.fingerTextMessage.text = getString(R.string.biometric_none_enrolled)
+                binding.fingerButtonLogin.visibility = View.GONE
+            }
+        }
+    }
+
     private fun instanceOfBiometricPrompt(): BiometricPrompt {
-        val executor = ContextCompat.getMainExecutor(applicationContext)
+        val executor = ContextCompat.getMainExecutor(this)
         val callback = object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                 super.onAuthenticationError(errorCode, errString)
@@ -49,11 +73,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun getPromptInfo(): BiometricPrompt.PromptInfo {
         return BiometricPrompt.PromptInfo.Builder()
-            .setTitle("My App's Authentication")
-            .setSubtitle("Please login to get access")
-            .setDescription("My App is using Android biometric authentication")
-            .setDeviceCredentialAllowed(true)
-            .setConfirmationRequired(true)
+            .setTitle("Login")
+            .setDescription("User your fingerprint to login to your app")
+            .setNegativeButtonText("Cancel")
             .build()
     }
 

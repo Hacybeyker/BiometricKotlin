@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">BiometricKotlin</string>
+    <string name="use_finger_print">Use your fingerPrint to Login</string>
+    <string name="login">login</string>
+    <string name="biometric_success">You can use the fingerprint sensor to login</string>
+    <string name="biometric_no_hardware">The device don\'t have a fingerprint sensor</string>
+    <string name="biometric_hw_unavailable">The biometric sensors is currently unavailable</string>
+    <string name="biometric_none_enrolled">Your device don\'t have any fingerprint saved, please check your security settings</string>
 </resources>
